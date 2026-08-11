@@ -23,20 +23,45 @@ class GPTDatasetV1(Dataset):
     def __getitem__(self, idx):
         return self.input_ids[idx], self.target_ids[idx]
 
+def create_dataloader_v1(txt, batch_size=4, max_length=256,
+                         stride=128, shuffle=True, drop_last=True,
+                         num_workers=0):
+    tokenizer = tiktoken.get_encoding("gpt2")
+    dataset = GPTDatasetV1(txt, tokenizer, max_length, stride)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        drop_last=drop_last,
+        num_workers=num_workers
+    )
+
+    return dataloader
+
 with open("the-verdict.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
-tokenizer = tiktoken.get_encoding("gpt2")
-enc_text = tokenizer.encode(raw_text)
 
-enc_sample = enc_text[50:]
+vocab_size = 50257
+output_dim = 256
+token_embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
 
-context_size = 4
-x = enc_sample[:context_size]
-y = enc_sample[1:context_size+1]
-print(f"x: {x}")
-print(f"y:      {y}")
+max_length = 4
+dataloader = create_dataloader_v1(
+    raw_text, batch_size=8, max_length=max_length,
+    stride=max_length, shuffle=False
+)
+data_iter = iter(dataloader)
+inputs, targets = next(data_iter)
+print("Token IDs:\n", inputs)
+print("\nInputs shape:\n", inputs.shape)
 
-for i in range(1, context_size+1):
-    context = enc_sample[:i]
-    desired = enc_sample[i]
-    print(tokenizer.decode(context), "---->", tokenizer.decode([desired]))
+token_embeddings = token_embedding_layer(inputs)
+print(token_embeddings.shape)
+
+context_length = max_length
+pos_embedding_layer = torch.nn.Embedding(context_length, output_dim)
+pos_embeddings = pos_embedding_layer(torch.arange(context_length))
+print(pos_embeddings.shape)
+
+input_embeddings = token_embeddings + pos_embeddings
+print(input_embeddings.shape)
