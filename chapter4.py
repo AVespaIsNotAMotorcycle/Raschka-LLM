@@ -55,6 +55,7 @@ class DummyLayerNorm(nn.Module):
     def forward(self, x):
         return x
 
+'''
 tokenizer = tiktoken.get_encoding("gpt2")
 batch = []
 txt1 = "Every effort moves you"
@@ -63,7 +64,6 @@ txt2 = "Every day holds a"
 batch.append(torch.tensor(tokenizer.encode(txt1)))
 batch.append(torch.tensor(tokenizer.encode(txt2)))
 batch = torch.stack(batch, dim=0)
-'''
 print(batch)
 
 torch.manual_seed(123)
@@ -219,10 +219,10 @@ class GPTModel(nn.Module):
         logits = self.out_head(x)
         return logits
 
+'''
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 
-'''
 out = model(batch)
 print("Input batch:\n", batch)
 print("Ouput shape:\n", out.shape)
@@ -259,6 +259,7 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
 
     return idx
 
+'''
 start_context = "Hello, I am"
 encoded = tokenizer.encode(start_context)
 print("encoded:", encoded)
@@ -277,3 +278,4 @@ print("Output length:", len(out[0]))
 
 decoded_text = tokenizer.decode(out.squeeze(0).tolist())
 print(decoded_text)
+'''

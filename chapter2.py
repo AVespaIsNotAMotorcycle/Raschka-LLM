@@ -38,6 +38,7 @@ def create_dataloader_v1(txt, batch_size=4, max_length=256,
 
     return dataloader
 
+'''
 with open("the-verdict.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
 
@@ -65,3 +66,4 @@ print(pos_embeddings.shape)
 
 input_embeddings = token_embeddings + pos_embeddings
 print(input_embeddings.shape)
+'''
