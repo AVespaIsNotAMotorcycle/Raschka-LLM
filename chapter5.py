@@ -410,6 +410,7 @@ filename = url.split('/')[-1]
 urllib.request.urlretrieve(url, filename)
 
 '''
+'''
 from gpt_download import download_and_load_gpt2
 settings, params = download_and_load_gpt2(
     model_size="124M", models_dir="gpt2"
@@ -432,6 +433,7 @@ NEW_CONFIG.update({ "qkv_bias": True })
 
 gpt = GPTModel(NEW_CONFIG)
 gpt.eval()
+'''
 
 def assign(left, right):
     if left.shape != right.shape:
@@ -501,6 +503,7 @@ def load_weights_into_gpt(gpt, params):
     gpt.final_norm.shift = assign(gpt.final_norm.shift, params["b"])
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
 
+'''
 load_weights_into_gpt(gpt, params)
 gpt.to(device)
 
@@ -514,3 +517,4 @@ token_ids = generate(
     temperature=1.5
 )
 print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
+'''
