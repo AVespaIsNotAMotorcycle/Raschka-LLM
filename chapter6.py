@@ -364,7 +364,7 @@ def train_classifier_simple(
         model.train()
 
         for input_batch, target_batch in train_loader:
-            optimizer = zero_grad()
+            optimizer.zero_grad()
             loss = calc_loss_batch(
                 input_batch, target_batch, model, device
             )
@@ -409,9 +409,13 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     return train_loss, val_loss
 
 import time
+import matplotlib.pyplot as plt
 
 print("Imported time")
+model_state_dict = torch.load("review_classifier.pth", map_location=device)
+model.load_state_dict(model_state_dict)
 
+'''
 start_time = time.time()
 torch.manual_seed(123)
 
@@ -430,3 +434,91 @@ train_losses, val_losses, train_accs, val_accs, examples_seen = \
 end_time = time.time()
 execution_time_minutes = (end_time - start_time) / 60
 print(f"Training completed in {execution_time_minutes:.2f} minutes")
+torch.save(model.state_dict(), "review_classifier.pth")
+
+def plot_values(
+        epochs_seen, examples_seen, train_values, val_values,
+        label="loss"):
+    fig, ax1 = plt.subplots(figsize=(5, 3))
+
+ #1
+    ax1.plot(epochs_seen, train_values, label=f"Training {label}")
+    ax1.plot(
+        epochs_seen, val_values, linestyle="-.",
+        label=f"Validation {label}"
+    )
+    ax1.set_xlabel("Epochs")
+    ax1.set_ylabel(label.capitalize())
+    ax1.legend()
+
+ #2
+    ax2 = ax1.twiny()
+    ax2.plot(examples_seen, train_values, alpha=0)    #3
+    ax2.set_xlabel("Examples seen")
+
+    fig.tight_layout()             #4
+    plt.savefig(f"{label}-plot.pdf")
+    plt.show()
+
+epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
+examples_seen_tensor = torch.linspace(0, examples_seen, len(train_losses))
+
+plot_values(epochs_tensor, examples_seen_tensor, train_losses, val_losses)
+
+epochs_tensor = torch.linspace(0, num_epochs, len(train_accs))
+examples_seen_tensor = torch.linspace(0, examples_seen, len(train_accs))
+
+plot_values(
+    epochs_tensor, examples_seen_tensor, train_accs, val_accs,
+    label="accuracy"
+)
+
+train_accuracy = calc_accuracy_loader(train_loader, model, device)
+val_accuracy = calc_accuracy_loader(val_loader, model, device)
+test_accuracy = calc_accuracy_loader(test_loader, model, device)
+
+print(f"Training accuracy: {train_accuracy*100:.2f}%")
+print(f"Validation accuracy: {val_accuracy*100:.2f}%")
+print(f"Test accuracy: {test_accuracy*100:.2f}%")
+'''
+
+def classify_review(text, model, tokenizer, device,
+                    max_length=None, pad_token_id=50256):
+    model.eval()
+
+    input_ids = tokenizer.encode(text)
+    supported_context_length = model.pos_emb.weight.shape[1]
+
+    input_ids = input_ids[:min(
+        max_length, supported_context_length
+    )]
+
+    input_ids += [pad_token_id] * (max_length - len(input_ids))
+
+    input_tensor = torch.tensor(
+        input_ids, device=device
+    ).unsqueeze(0)
+
+    with torch.no_grad():
+        logits = model(input_tensor)[:, -1, :]
+    predicted_label = torch.argmax(logits, dim=-1).item()
+
+    return "spam" if predicted_label == 1 else "not spam"
+
+text_1 = (
+    "You are a winner you have been specially"
+    " selected to receive $1000 cash or a $2000."
+)
+
+print(classify_review(
+    text_1, model, tokenizer, device, max_length=train_dataset.max_length
+))
+
+text_2 = (
+    "Hey, just wanted to check if we're still on"
+    " for dinner tonight? Let me know!"
+)
+
+print(classify_review(
+    text_2, model, tokenizer, device, max_length=train_dataset.max_length
+))

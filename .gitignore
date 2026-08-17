@@ -2,3 +2,5 @@ model_and_optimizer.pth
 gpt2
 __pycache__
 v12
+review_classifier.pth
+.venv
