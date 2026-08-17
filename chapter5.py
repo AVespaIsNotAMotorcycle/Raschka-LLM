@@ -1,6 +1,12 @@
 import torch
 import tiktoken
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from chapter2 import create_dataloader_v1
 from chapter4 import GPTModel, generate_text_simple
+import urllib.request
+from gpt_download import download_and_load_gpt2
+import numpy as np
 
 GPT_CONFIG_124M = {
     "vocab_size": 50257,
@@ -12,9 +18,11 @@ GPT_CONFIG_124M = {
     "qkv_bias": False
 }
 
+'''
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.eval()
+'''
 
 def text_to_token_ids(text, tokenizer):
     encoded = tokenizer.encode(text, allowed_special={'<|endoftext|>'})
@@ -25,8 +33,8 @@ def token_ids_to_text(token_ids, tokenizer):
     flat = token_ids.squeeze(0)
     return tokenizer.decode(flat.tolist())
 
-tokenizer = tiktoken.get_encoding("gpt2")
 '''
+tokenizer = tiktoken.get_encoding("gpt2")
 start_context = "Every effort moves you"
 
 token_ids = generate_text_simple(
@@ -36,9 +44,7 @@ token_ids = generate_text_simple(
     context_size=GPT_CONFIG_124M["context_length"]
 )
 print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
-'''
 
-'''
 inputs = torch.tensor([[16833, 3626, 6100],     # "every effort moves"
                        [40,    1107, 588]])     # "I really like"
 targets = torch.tensor([[3626, 6100, 345],      # "effort moves you"
@@ -84,7 +90,6 @@ loss = torch.nn.functional.cross_entropy(logits_flat, targets_flat)
 print(loss)
 perplexity = torch.exp(loss)
 print(perplexity)
-'''
 
 file_path = "the-verdict.txt"
 with open(file_path, "r", encoding="utf-8") as file:
@@ -92,17 +97,16 @@ with open(file_path, "r", encoding="utf-8") as file:
 
 total_characters = len(text_data)
 total_tokens = len(tokenizer.encode(text_data))
-'''
 print("Characters:", total_characters)
 print("Tokens:", total_tokens)
-'''
 
 train_ratio = 0.90
 split_idx = int(train_ratio * len(text_data))
 train_data = text_data[:split_idx]
 val_data = text_data[split_idx:]
+'''
 
-from chapter2 import create_dataloader_v1
+'''
 torch.manual_seed(123)
 
 train_loader = create_dataloader_v1(
@@ -124,7 +128,6 @@ val_loader = create_dataloader_v1(
     num_workers=0
 )
 
-'''
 print("Train loader:")
 for x, y in train_loader:
     print(x.shape, y.shape)
@@ -162,8 +165,8 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
             break
     return total_loss / num_batches
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 '''
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 with torch.no_grad():
@@ -233,10 +236,10 @@ def generate_and_print_sample(model, tokenizer, device, start_context):
     print(decoded_text.replace("\n", " "))
     model.train()
 
+'''
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
 model.to(device)
-'''
 optimizer = torch.optim.AdamW(
     model.parameters(),
     lr=0.0004,
@@ -249,8 +252,7 @@ train_losses, val_losses, tokens_seen = train_model_simple(
     start_context="Ever effort moves you", tokenizer=tokenizer
 )
 
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
+'''
 
 def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     fig, ax1 = plt.subplots(figsize=(5, 3))
@@ -267,14 +269,13 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     ax2.set_xlabel("Tokens seen")
     fig.tight_layout()
     plt.show()
+'''
 
 epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
 plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
-'''
 
 model.to("cpu")
 model.eval()
-'''
 
 tokenizer = tiktoken.get_encoding("gpt2")
 token_ids = generate_text_simple(
@@ -400,7 +401,6 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4, weight_decay=0.1)
 optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 model.train();
 
-import urllib.request
 url = (
     "https://raw.githubusercontent.com/rasbt/"
     "LLMs-from-scratch/main/ch05/"
@@ -409,13 +409,10 @@ url = (
 filename = url.split('/')[-1]
 urllib.request.urlretrieve(url, filename)
 
-'''
-from gpt_download import download_and_load_gpt2
 settings, params = download_and_load_gpt2(
     model_size="124M", models_dir="gpt2"
 )
 optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4, weight_decay=0.1)
-'''
 
 # print("Settings:", settings)
 # print("Parameter dictionary keys:", params.keys())
@@ -442,7 +439,6 @@ def assign(left, right):
                          "Right: {right.shape}")
     return torch.nn.Parameter(torch.tensor(right))
 
-import numpy as np
 
 def load_weights_into_gpt(gpt, params):
     gpt.pos_emb.weight = assign(gpt.pos_emb.weight, params['wpe'])

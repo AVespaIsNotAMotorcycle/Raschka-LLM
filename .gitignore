@@ -3,4 +3,5 @@ gpt2
 __pycache__
 v12
 review_classifier.pth
+gpt2-medium355M-sft.pth
 .venv
