@@ -58,7 +58,7 @@ and a variance of 1. This prevents vanishing or exploding gradients during train
 GELU (Gaussian error linear unit) is an alternative activation function to RELU (rectified
 linear unit). ReLU is a function which outputs the input if the input is positive and zero
 if it is not. This produces a sharp corner at zero which can hinder backpropogation. GELU
-is a good alternative due [`"to its desirable attributes, including its smoothness,
-differentiability, and ability to approximate [ReLU]."`](https://doi.org/10.1155/2023/4229924)
+is a good alternative due ["to its desirable attributes, including its smoothness,
+differentiability, and ability to approximate [ReLU]."](https://doi.org/10.1155/2023/4229924)
 The implementation of GELU in this repo (and in Raschka's book, of course) is "a computationally
 cheaper approximation."
