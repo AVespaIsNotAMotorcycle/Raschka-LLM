@@ -23,3 +23,17 @@ This repo contains the code created by working through Sebastian Raschka's book
 
 This is the GPT itself, composed of `n` transformers in sequence, where `n=12` in the
 model used for `prompt-response.py`. 
+
+### Embeddings
+
+### TransformerBlock
+
+### LayerNorm
+
+This takes an input `x` and transforms it such that the output, `y`, has a mean of 0
+and a variance of 1. This prevents vanishing or exploding gradients during training.
+
+### MultiHeadAttention
+
+### FeedForward
+
