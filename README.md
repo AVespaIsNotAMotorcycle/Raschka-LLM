@@ -53,6 +53,12 @@ and a variance of 1. This prevents vanishing or exploding gradients during train
 
 ### FeedForward.py
 
+This expands the input by a factor of four, multiplying it by weights in the process, runs
+it through the GELU activation function, and then collapses it back down to its original
+size, multiplying it by weights again. Having a hidden layer four times as large as the
+input gives the model more space to learn, while keeping the dimensions of the input and
+output layers the same makes it easy to place many of these FeedForward layers in sequence.
+
 ### GELU.py
 
 GELU (Gaussian error linear unit) is an alternative activation function to RELU (rectified
